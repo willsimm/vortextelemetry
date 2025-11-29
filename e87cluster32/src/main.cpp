@@ -18,13 +18,19 @@
 //char msgString[128];                        // Array to store serial string
 
 
-// Structure example to receive data
+/*// Structure example to receive data
 // Must match the sender structure
 typedef struct struct_message {
     char a[32];
     int b;
     float c;
     bool d;
+} struct_message;*/
+
+
+typedef struct struct_message {
+    int rpm;
+    int temp;
 } struct_message;
 
 // Create a struct_message called myData
@@ -35,7 +41,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&myData, incomingData, sizeof(myData));
   Serial.print("Bytes received: ");
   Serial.println(len);
-  Serial.print("Char: ");
+  /*Serial.print("Char: ");
   Serial.println(myData.a);
   Serial.print("Int: ");
   Serial.println(myData.b);
@@ -43,7 +49,15 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(myData.c);
   Serial.print("Bool: ");
   Serial.println(myData.d);
+  Serial.println();*/
+  Serial.print("RPM: ");
+  Serial.println(myData.rpm);
+  Serial.print("Temp: ");
+  Serial.println(myData.temp);
   Serial.println();
+  
+  g_rpm = myData.rpm;
+  g_engine_temperature = myData.temp;
 }
 
 void setup()

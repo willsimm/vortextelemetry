@@ -6,20 +6,37 @@
 #include <WiFi.h>
 
 // REPLACE WITH YOUR RECEIVER MAC Address
-uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+uint8_t broadcastAddress[] = {0x2c,0xbc,0xbb,0xb4,0xa8,0x64};
+//uint16_t rpm =0;
+//uint8_t temp=0;
+//uint8_t speed=0;
+//uint16_t mileage=0;
 
-// Structure example to send data
+
+/*// Structure example to send data
 // Must match the receiver structure
 typedef struct struct_message {
   char a[32];
   int b;
   float c;
   bool d;
+} struct_message;*/
+
+// Structure example to send data
+// Must match the receiver structure
+typedef struct struct_message {
+  bool can = false;
+  uint16_t rpm =0;
+  uint8_t temp=0;
+  uint8_t speed=0;
+  uint16_t mileage=0;
+  bool obdii = false;
 } struct_message;
 
-// Create a struct_message called myData
-struct_message myData;
 
+// Create a struct_message called myData
+struct_message carStatus;
+static unsigned long noCanTime;
 esp_now_peer_info_t peerInfo;
 
 // callback when data is sent
@@ -28,7 +45,22 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
+void sendESPNOW ()
+{
+  
+  // Send message via ESP-NOW
+  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &carStatus, sizeof(carStatus));
+   
+  if (result == ESP_OK) {
+    Serial.println("Sent with success");
+  }
+  else {
+    Serial.println("Error sending the data");
+  }
+  //delay(2000);
 
+
+}
 
 #define  SHIELD_LED_PIN   26
 
@@ -43,26 +75,31 @@ void printFrame(CAN_FRAME *message)
     Serial.print(" ");
   }
   Serial.println();
+  
 }
 
 void twoZeroOne(CAN_FRAME *frame)
 {
+  carStatus.can=true;
   Serial.print("RPM ");
   //frame->data.byte[0] = 0x1a;
   //frame->data.byte[1] = 0xfb;
-  int RPM = ((frame->data.byte[0] << 8) | frame->data.byte[1]) * 4;
-  Serial.print(RPM);
+  carStatus.rpm = ((frame->data.byte[0] << 8) | frame->data.byte[1]) * 4;
+  Serial.print(carStatus.rpm);
+
   Serial.print(" gas pedal ");
   int gas = (frame->data.byte[6] << 8) | frame->data.byte[7];
   Serial.println(gas);
+
+  sendESPNOW();
 }
 
 void fourTwoZero(CAN_FRAME *frame)
 {
   //printFrame(frame);
   Serial.print("coolant temp ");
-  int temp = frame->data.byte[0];
-  Serial.println(temp);
+  carStatus.temp = frame->data.byte[0];
+  Serial.println(carStatus.temp);
 }
 /* i think not supported
 void obdResponse(CAN_FRAME *frame){
@@ -121,8 +158,18 @@ void getSupportedPIDs(){
 
 }*/
 
+void speedometerClick(){
+
+  //calculate speed and save in carStatus.speed
+  //increment odometer in storage
+
+}
+
 void setup()
 {
+
+  //fetch carStatus.mileage from storage
+
   Serial.begin(115200);
   Serial.println(" CAN...............INIT");
   CAN0.setCANPins(GPIO_NUM_4, GPIO_NUM_5); //config for shield v1.3+, see important note above!
@@ -172,7 +219,20 @@ void setup()
 
 void loop()
 {
-  // Set values to send
+  
+//send a message every 500ms if there no can messages
+if ((millis() - noCanTime >= 500) && !carStatus.can) {
+    noCanTime += 500;
+    sendESPNOW();
+    //delay(2000);
+    carStatus.rpm++;
+    carStatus.rpm++;
+    carStatus.temp++;
+    carStatus.speed++;
+    carStatus.mileage++;
+}
+
+ /* // Set values to send
   strcpy(myData.a, "THIS IS A CHAR");
   myData.b = random(1,20);
   myData.c = 1.2;
@@ -187,7 +247,7 @@ void loop()
   else {
     Serial.println("Error sending the data");
   }
-  delay(2000);
+  delay(2000);*/
   //sendTempRequest();
   
   
