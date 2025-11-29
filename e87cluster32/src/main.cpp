@@ -26,19 +26,26 @@ typedef struct struct_message {
     float c;
     bool d;
 } struct_message;*/
-
+static unsigned long lastDataTime =0;
+bool wifi = true;
 
 typedef struct struct_message {
-    int rpm;
-    int temp;
+  bool can = false;
+  uint16_t rpm =0;
+  uint8_t temp=0;
+  uint8_t speed=0;
+  uint16_t mileage=0;
+  bool obdii = false;
 } struct_message;
 
 // Create a struct_message called myData
-struct_message myData;
+struct_message carStatus;
 
 // callback function that will be executed when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
-  memcpy(&myData, incomingData, sizeof(myData));
+  lastDataTime=millis();
+  wifi=true;
+  memcpy(&carStatus, incomingData, sizeof(carStatus));
   Serial.print("Bytes received: ");
   Serial.println(len);
   /*Serial.print("Char: ");
@@ -51,13 +58,13 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(myData.d);
   Serial.println();*/
   Serial.print("RPM: ");
-  Serial.println(myData.rpm);
+  Serial.println(carStatus.rpm);
   Serial.print("Temp: ");
-  Serial.println(myData.temp);
+  Serial.println(carStatus.temp);
   Serial.println();
-  
-  g_rpm = myData.rpm;
-  g_engine_temperature = myData.temp;
+
+  g_rpm = carStatus.rpm;
+  g_engine_temperature = carStatus.temp;
 }
 
 void setup()
@@ -110,6 +117,26 @@ void loop()
 {
     sendCanBus();
     readSerial();
+
+    //if no wifi message in 2000ms set wifi=false for display
+    if (wifi && (millis() - lastDataTime >= 2000)) {
+      wifi =false;
+      Serial.println("no data from Engine Bay ESP32");
+    }
+
+          
+
+
+/*
+    //send a message every 2000ms if there no wifi messages
+    static unsigned long noDataTime;
+    if ((millis() - noDataTime >= 2000) && (millis() - lastDataTime >= 2000)) {
+      noDataTime += 2000;
+      Serial.println("no data from Engine Bay ESP32");
+    }
+*/
+
+
     //if (!cansuccess){
     //Serial.println("fail");
 
