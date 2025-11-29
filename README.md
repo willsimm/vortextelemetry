@@ -1,0 +1,1 @@
+ESP32 code to take RPM and coolant temp from a Ford ST220 MEBA engine ECU and other engine bay telemetry sources, send via ESPNOW to another ESP32 taking in switchgear status and controllig a BMW E87 cluster with custom screen.
