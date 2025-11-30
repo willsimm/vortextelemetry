@@ -29,7 +29,8 @@ typedef struct struct_message {
   uint16_t rpm =0;
   uint8_t temp=0;
   uint8_t speed=0;
-  uint16_t mileage=0;
+  uint16_t odo=0;
+  uint8_t fuel=0;
   bool obdii = false;
 } struct_message;
 
@@ -161,14 +162,16 @@ void getSupportedPIDs(){
 void speedometerClick(){
 
   //calculate speed and save in carStatus.speed
-  //increment odometer in storage
+  //increment odometer in storage and save in carStatus.odo
 
 }
 
 void setup()
 {
-
+  //TODO
   //fetch carStatus.mileage from storage
+  // add interrupt on pin when magnet passes sensor to call speedometerClick
+  //check fuel level
 
   Serial.begin(115200);
   Serial.println(" CAN...............INIT");
@@ -229,7 +232,7 @@ if ((millis() - noCanTime >= 500) && !carStatus.can) {
     carStatus.rpm++;
     carStatus.temp++;
     carStatus.speed++;
-    carStatus.mileage++;
+    carStatus.odo++;
 }
 
  /* // Set values to send

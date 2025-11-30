@@ -34,7 +34,8 @@ typedef struct struct_message {
   uint16_t rpm =0;
   uint8_t temp=0;
   uint8_t speed=0;
-  uint16_t mileage=0;
+  uint16_t odo=0;
+  uint8_t fuel=0;
   bool obdii = false;
 } struct_message;
 
@@ -48,15 +49,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&carStatus, incomingData, sizeof(carStatus));
   Serial.print("Bytes received: ");
   Serial.println(len);
-  /*Serial.print("Char: ");
-  Serial.println(myData.a);
-  Serial.print("Int: ");
-  Serial.println(myData.b);
-  Serial.print("Float: ");
-  Serial.println(myData.c);
-  Serial.print("Bool: ");
-  Serial.println(myData.d);
-  Serial.println();*/
   Serial.print("RPM: ");
   Serial.println(carStatus.rpm);
   Serial.print("Temp: ");
@@ -65,6 +57,8 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 
   g_rpm = carStatus.rpm;
   g_engine_temperature = carStatus.temp;
+  g_fuel=carStatus.fuel;
+  g_speed=carStatus.speed;
 }
 
 void setup()
