@@ -6,7 +6,8 @@
 #include <WiFi.h>
 
 // REPLACE WITH YOUR RECEIVER MAC Address
-uint8_t broadcastAddress[] = {0x2c,0xbc,0xbb,0xb4,0xa8,0x64};
+//uint8_t broadcastAddress[] = {0x2c,0xbc,0xbb,0xb4,0xa8,0x64};
+uint8_t broadcastAddress[] = {0x28,0x05,0xa5,0x6f,0x37,0x9c };
 //uint16_t rpm =0;
 //uint8_t temp=0;
 //uint8_t speed=0;
@@ -42,8 +43,8 @@ esp_now_peer_info_t peerInfo;
 
 // callback when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  Serial.print("\r\nLast Packet Send Status:\t");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+  //Serial.print("\r\nLast Packet Send Status:\t");
+  //Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 }
 
 void sendESPNOW ()
@@ -177,7 +178,7 @@ void setup()
   Serial.println(" CAN...............INIT");
   CAN0.setCANPins(GPIO_NUM_4, GPIO_NUM_5); //config for shield v1.3+, see important note above!
   CAN0.begin(500000); // 500Kbps
-
+  //Serial.println(CAN0.getBusSpeed());
   //CAN0.watchFor()
   CAN0.watchFor(0x201); //setup a special filter
   CAN0.watchFor(0x420);
@@ -225,6 +226,7 @@ void loop()
   
 //send a message every 500ms if there no can messages
 if ((millis() - noCanTime >= 500) && !carStatus.can) {
+    Serial.println("no can");
     noCanTime += 500;
     sendESPNOW();
     //delay(2000);

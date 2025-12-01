@@ -19,7 +19,21 @@ void sendMsgBuf(uint32_t CAN_BUS_ID, int length, uint8_t *frame)
               txFrame.data.uint8[i] = frame[i];
         }
         CAN0.sendFrame(txFrame);
-
+        //Serial.println(txFrame);
+/*
+    Serial.print("CAN MSG: 0x");
+    Serial.print(txFrame.id, HEX);
+    Serial.print(" [");
+    Serial.print(txFrame.length, DEC);
+    Serial.print("] <");
+    for (int i = 0; i < txFrame.length; i++)
+    {
+      if (i != 0) Serial.print(":");
+      Serial.print(txFrame.data.byte[i], HEX);
+    }
+    Serial.println(">");
+  
+*/
 
 
 }

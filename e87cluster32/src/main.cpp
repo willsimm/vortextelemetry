@@ -88,8 +88,9 @@ void setup()
  Serial.setTimeout(250);
   Serial.println(" CAN...............INIT");
   CAN0.setCANPins(GPIO_NUM_4, GPIO_NUM_5); //config for shield v1.3+, see important note above!
-  CAN0.begin(500000); // 500Kbps
+  CAN0.begin(100000); // 500Kbps
   Serial.println(" CAN............500Kbps");
+
   //delay(2000);
 
  // Set device as a Wi-Fi Station
