@@ -7,7 +7,8 @@
 
 // REPLACE WITH YOUR RECEIVER MAC Address
 //uint8_t broadcastAddress[] = {0x2c,0xbc,0xbb,0xb4,0xa8,0x64};
-uint8_t broadcastAddress[] = {0x28,0x05,0xa5,0x6f,0x37,0x9c };
+//uint8_t broadcastAddress[] = {0x28,0x05,0xa5,0x6f,0x37,0x9c };
+uint8_t broadcastAddress[] = {0x8c,0x4f,0x00,0x3d,0x32,0x78};
 //uint16_t rpm =0;
 //uint8_t temp=0;
 //uint8_t speed=0;
@@ -31,11 +32,11 @@ typedef struct struct_message {
   uint8_t temp=0;
   uint8_t speed=0;
   uint16_t odo=0;
-  uint8_t fuel=0;
+  uint8_t fuel=25;
   bool obdii = false;
 } struct_message;
 
-
+int send = 0;
 // Create a struct_message called myData
 struct_message carStatus;
 static unsigned long noCanTime;
@@ -83,25 +84,29 @@ void printFrame(CAN_FRAME *message)
 void twoZeroOne(CAN_FRAME *frame)
 {
   carStatus.can=true;
-  Serial.print("RPM ");
+  //Serial.print("RPM ");
   //frame->data.byte[0] = 0x1a;
   //frame->data.byte[1] = 0xfb;
   carStatus.rpm = ((frame->data.byte[0] << 8) | frame->data.byte[1]) * 4;
-  Serial.print(carStatus.rpm);
+  //Serial.print(carStatus.rpm);
 
-  Serial.print(" gas pedal ");
+  //Serial.print(" gas pedal ");
   int gas = (frame->data.byte[6] << 8) | frame->data.byte[7];
-  Serial.println(gas);
-
-  sendESPNOW();
+  //Serial.println(gas);
+  carStatus.speed++;
+  //TODO: consider only sending 50% of the time, frequency of engine can bus is much higher than needed
+  if(send  % 5 == 0){
+    sendESPNOW();
+  }
+  send++;
 }
 
 void fourTwoZero(CAN_FRAME *frame)
 {
   //printFrame(frame);
-  Serial.print("coolant temp ");
+  //Serial.print("coolant temp ");
   carStatus.temp = frame->data.byte[0];
-  Serial.println(carStatus.temp);
+  //Serial.println(carStatus.temp);
 }
 /* i think not supported
 void obdResponse(CAN_FRAME *frame){
@@ -189,7 +194,7 @@ void setup()
   //CAN0.setCallback(2, obdResponse);
   //CAN0.watchFor();
   Serial.println(" CAN............500Kbps");
-  delay(2000);
+  //delay(2000);
   //getSupportedPIDs();
 
 
@@ -230,10 +235,10 @@ if ((millis() - noCanTime >= 500) && !carStatus.can) {
     noCanTime += 500;
     sendESPNOW();
     //delay(2000);
-    carStatus.rpm++;
-    carStatus.rpm++;
+    carStatus.rpm = carStatus.rpm+20;
     carStatus.temp++;
     carStatus.speed++;
+    carStatus.fuel++;
     carStatus.odo++;
 }
 

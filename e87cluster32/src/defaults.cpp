@@ -8,7 +8,7 @@ bool g_lights_dip = false;
 bool g_lights_main = false;
 bool g_lights_front_fog = false;
 bool g_lights_rear_fog = false;
-uint8_t g_lights_indicators = 3;
+uint8_t g_lights_indicators = 0;
 
 uint16_t g_rpm = 0;
 uint16_t g_speed = 0;

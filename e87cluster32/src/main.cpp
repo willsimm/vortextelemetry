@@ -47,17 +47,19 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   lastDataTime=millis();
   wifi=true;
   memcpy(&carStatus, incomingData, sizeof(carStatus));
-  Serial.print("Bytes received: ");
+  /*Serial.print("Bytes received: ");
   Serial.println(len);
   Serial.print("RPM: ");
   Serial.println(carStatus.rpm);
-  Serial.print("Temp: ");
-  Serial.println(carStatus.temp);
-  Serial.println();
+  Serial.print("fuel: ");
+  Serial.println(carStatus.fuel);
+  Serial.println();*/
+    Serial.print("speed: ");
+  Serial.println(carStatus.speed);
 
   g_rpm = carStatus.rpm;
   g_engine_temperature = carStatus.temp;
-  g_fuel=carStatus.fuel;
+  g_fuel=carStatus.fuel;//carStatus.fuel;
   g_speed=carStatus.speed;
 }
 
@@ -88,8 +90,8 @@ void setup()
  Serial.setTimeout(250);
   Serial.println(" CAN...............INIT");
   CAN0.setCANPins(GPIO_NUM_4, GPIO_NUM_5); //config for shield v1.3+, see important note above!
-  CAN0.begin(100000); // 500Kbps
-  Serial.println(" CAN............500Kbps");
+  CAN0.begin(100000); // 100Kbps
+  Serial.println(" CAN............100Kbps");
 
   //delay(2000);
 
@@ -111,7 +113,8 @@ void setup()
 void loop()
 {
     sendCanBus();
-    readSerial();
+    //TODO: Update display
+    //readSerial();
 
     //if no wifi message in 2000ms set wifi=false for display
     if (wifi && (millis() - lastDataTime >= 2000)) {
