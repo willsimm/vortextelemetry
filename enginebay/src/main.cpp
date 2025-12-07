@@ -34,6 +34,7 @@ typedef struct struct_message {
   uint16_t odo=0;
   uint8_t fuel=25;
   bool obdii = false;
+  bool oilPressure = false;
 } struct_message;
 
 int send = 0;
@@ -240,8 +241,10 @@ if ((millis() - noCanTime >= 500) && !carStatus.can) {
     carStatus.speed++;
     carStatus.fuel++;
     carStatus.odo++;
+    carStatus.oilPressure = !carStatus.oilPressure;
+    carStatus.obdii = ! carStatus.obdii;
 }
-
+  
  /* // Set values to send
   strcpy(myData.a, "THIS IS A CHAR");
   myData.b = random(1,20);

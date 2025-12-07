@@ -201,4 +201,18 @@
  /Users/willsimm/.platformio/packages/framework-arduinoespressif32/cores/esp32/Server.h \
  /Users/willsimm/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src/WiFiUdp.h \
  /Users/willsimm/.platformio/packages/framework-arduinoespressif32/cores/esp32/Udp.h \
- /Users/willsimm/.platformio/packages/framework-arduinoespressif32/cores/esp32/cbuf.h
+ /Users/willsimm/.platformio/packages/framework-arduinoespressif32/cores/esp32/cbuf.h \
+ .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/Adafruit_GFX.h \
+ .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/gfxfont.h \
+ .pio/libdeps/esp32dev/Adafruit\ BusIO/Adafruit_I2CDevice.h \
+ /Users/willsimm/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src/Wire.h \
+ /Users/willsimm/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal.h \
+ .pio/libdeps/esp32dev/Adafruit\ BusIO/Adafruit_SPIDevice.h \
+ /Users/willsimm/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src/SPI.h \
+ /Users/willsimm/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-spi.h \
+ .pio/libdeps/esp32dev/Adafruit\ ST7735\ and\ ST7789\ Library/Adafruit_ST7789.h \
+ .pio/libdeps/esp32dev/Adafruit\ ST7735\ and\ ST7789\ Library/Adafruit_ST77xx.h \
+ .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/Adafruit_SPITFT.h \
+ .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/Adafruit_GFX.h \
+ .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/Adafruit_SPITFT_Macros.h \
+ .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/Fonts/FreeSans12pt7b.h
