@@ -1,2 +1,8 @@
 .pio
 e87cluster32/.pio/*
+e87cluster32/.pio/build/esp32dev/.sconsign38.dblite
+e87cluster32/.pio/build/esp32dev/.sconsign38.dblite
+e87cluster32/.pio/build/esp32dev/firmware.bin
+/e87cluster32/.pio
+/e87cluster32/.pio
+e87cluster32/.pio/build/esp32dev/FrameworkArduino/firmware_msc_fat.c.o

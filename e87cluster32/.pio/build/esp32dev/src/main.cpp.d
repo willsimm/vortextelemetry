@@ -215,4 +215,9 @@
  .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/Adafruit_SPITFT.h \
  .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/Adafruit_GFX.h \
  .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/Adafruit_SPITFT_Macros.h \
- .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/Fonts/FreeSans12pt7b.h
+ .pio/libdeps/esp32dev/Adafruit\ GFX\ Library/Fonts/FreeSans12pt7b.h \
+ /Users/willsimm/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi.h \
+ /Users/willsimm/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_private/esp_wifi_private.h \
+ /Users/willsimm/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi_crypto_types.h \
+ /Users/willsimm/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_private/wifi_os_adapter.h \
+ /Users/willsimm/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32/include/esp_wifi/include/esp_wifi_default.h

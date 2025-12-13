@@ -7,8 +7,9 @@
 
 // REPLACE WITH YOUR RECEIVER MAC Address
 //uint8_t broadcastAddress[] = {0x2c,0xbc,0xbb,0xb4,0xa8,0x64};
-//uint8_t broadcastAddress[] = {0x28,0x05,0xa5,0x6f,0x37,0x9c };
-uint8_t broadcastAddress[] = {0x8c,0x4f,0x00,0x3d,0x32,0x78};
+uint8_t broadcastAddress[] = {0x28,0x05,0xa5,0x6f,0x37,0x9c };
+//uint8_t broadcastAddress[] = {0x8c,0x4f,0x00,0x3d,0x32,0x78};
+//28:05:a5:6f:37:9c
 //uint16_t rpm =0;
 //uint8_t temp=0;
 //uint8_t speed=0;
@@ -35,6 +36,7 @@ typedef struct struct_message {
   uint8_t fuel=25;
   bool obdii = false;
   bool oilPressure = false;
+  bool charging=false;
 } struct_message;
 
 int send = 0;
@@ -231,18 +233,27 @@ void loop()
 {
   
 //send a message every 500ms if there no can messages
-if ((millis() - noCanTime >= 500) && !carStatus.can) {
+if ((millis() - noCanTime >= 2000) && !carStatus.can) {
     Serial.println("no can");
-    noCanTime += 500;
+    noCanTime += 2000;
     sendESPNOW();
     //delay(2000);
-    carStatus.rpm = carStatus.rpm+20;
+    carStatus.rpm = carStatus.rpm+1000;
+    if (carStatus.rpm > 7000){
+      carStatus.rpm=0;
+    }
     carStatus.temp++;
-    carStatus.speed++;
-    carStatus.fuel++;
+    carStatus.speed = carStatus.speed+20 ;
+    if (carStatus.speed > 240){
+      carStatus.speed=0;
+    }
+    carStatus.fuel += 10;
+    if (carStatus.fuel > 100){
+      carStatus.fuel=0;
+    }
     carStatus.odo++;
     carStatus.oilPressure = !carStatus.oilPressure;
-    carStatus.obdii = ! carStatus.obdii;
+    carStatus.obdii = !carStatus.obdii;
 }
   
  /* // Set values to send

@@ -10,7 +10,7 @@
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>             // Arduino SPI library
 #include <Fonts/FreeSans12pt7b.h>
-
+#include <esp_wifi.h>
 //screen stuff
 #define TFT_MOSI 23  // SDA Pin on ESP32
 #define TFT_SCLK 18  // SCL Pin on ESP32
@@ -31,7 +31,14 @@ static const unsigned char PROGMEM v_bmp[] =
 
 
 
-
+int left_ind_pin = 32;
+int right_ind_pin = 33;
+int hazzard_pin =25;
+int fog_pin = 26;
+int sidelight_pin = 27;
+int dip_pin = 14;
+int full_beam_pin =12;
+int brake_pin = 13;
 
 
 int latestMSG = millis();
@@ -48,6 +55,7 @@ typedef struct struct_message {
   uint8_t fuel=0;
   bool obdii = false;
   bool oilPressure = false;
+  bool charging=false;
 } struct_message;
 
 // Create a struct_message called myData
@@ -57,20 +65,33 @@ struct_message prevCarStatus;
 // Initialize Adafruit ST7789 TFT library
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
-
+void readMacAddress(){
+  uint8_t baseMac[6];
+  esp_err_t ret = esp_wifi_get_mac(WIFI_IF_STA, baseMac);
+  if (ret == ESP_OK) {
+    Serial.printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
+                  baseMac[0], baseMac[1], baseMac[2],
+                  baseMac[3], baseMac[4], baseMac[5]);
+  } else {
+    Serial.println("Failed to read MAC address");
+  }
+}
 //screen draw methods
 void animate() {
 int ypos   = -LOGO_HEIGHT;
 int deltay = 2;//random(1, 6);
   for(int d=0; d<70; d++) { 
     //tft.clearDisplay(); // Clear the display buffer
-    tft.fillRect(100,0,130,180,ST77XX_BLACK);
+   // tft.fillRect(100,0,130,180,ST77XX_BLACK);
     
     //tft.fillScreen(ST77XX_BLACK);
     tft.drawBitmap(100, ypos, logo_bmp, LOGO_WIDTH, LOGO_HEIGHT, 0xBE3D);
+    delay(50);
+    tft.drawBitmap(100, ypos, logo_bmp, LOGO_WIDTH, LOGO_HEIGHT, ST77XX_BLACK);
     //tft.display(); // Show the display buffer on the screen
     ypos += deltay;
   }
+  tft.drawBitmap(100, ypos, logo_bmp, LOGO_WIDTH, LOGO_HEIGHT, 0xBE3D);
   tft.drawBitmap(100, 95, v_bmp, 128, 29, ST77XX_WHITE);
   //display.display();
   delay(1500);
@@ -86,7 +107,7 @@ void drawCoolantTemp(){
   uint16_t w=0;
   uint16_t h=0;
 
-  tft.getTextBounds(String("T: 000"), x, y, &x1, &y1, &w, &h);
+  tft.getTextBounds(String("T: 0000"), x, y, &x1, &y1, &w, &h);
   tft.fillRect(x1,y1,w,h,ST77XX_BLACK);
 
   tft.setCursor(x, y);
@@ -105,14 +126,14 @@ tft.print(carStatus.temp);
 void drawOBD(){
   int x=25;
   int y=200;
-  int16_t x1=0;
+  /*int16_t x1=0;
   int16_t y1=0;
   uint16_t w=0;
   uint16_t h=0;
 
   tft.getTextBounds(String("OBD"), x, y, &x1, &y1, &w, &h);
   tft.fillRect(x1,y1,w,h,ST77XX_BLACK);
-
+*/
   tft.setCursor(x, y);
   tft.setTextColor(ST77XX_RED);
   if (carStatus.obdii){
@@ -125,14 +146,14 @@ void drawOBD(){
 void drawCAN(){
   int x=25;
   int y=175;
-  int16_t x1=0;
+  /*int16_t x1=0;
   int16_t y1=0;
   uint16_t w=0;
   uint16_t h=0;
 
   tft.getTextBounds(String("CAN"), x, y, &x1, &y1, &w, &h);
   tft.fillRect(x1,y1,w,h,ST77XX_BLACK);
-
+*/
   tft.setCursor(x, y);
   tft.setTextColor(ST77XX_RED);
   if (carStatus.can){
@@ -146,14 +167,14 @@ void drawCAN(){
 void drawMSG(){
   int x=25;
   int y=225;
-  int16_t x1=0;
+  /*int16_t x1=0;
   int16_t y1=0;
   uint16_t w=0;
   uint16_t h=0;
 
   tft.getTextBounds(String("MSG"), x, y, &x1, &y1, &w, &h);
   tft.fillRect(x1,y1,w,h,ST77XX_BLACK);
-
+*/
   tft.setCursor(x, y);
   tft.setTextColor(ST77XX_GREEN);
   if (!wifi){
@@ -165,14 +186,14 @@ void drawMSG(){
 void drawOilPressure(){
   int x=175;
   int y=50;
-  int16_t x1=0;
+  /*int16_t x1=0;
   int16_t y1=0;
   uint16_t w=0;
   uint16_t h=0;
 
   tft.getTextBounds(String("O: 000"), x, y, &x1, &y1, &w, &h);
   tft.fillRect(x1,y1,w,h,ST77XX_BLACK);
-
+*/
   tft.setCursor(x, y);
   tft.setTextColor(0xD6BA);
   tft.print("O: ");
@@ -261,8 +282,115 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   //updateScreen();
 }
 
+
+void leftInd(){
+  if(digitalRead( left_ind_pin )){
+    g_lights_indicators = 0;
+    Serial.println("no left");
+  }else{
+    g_lights_indicators = 1;
+    Serial.println(" left");
+  }
+}
+void rightInd(){
+  if(digitalRead( right_ind_pin )){
+    g_lights_indicators = 0;
+    Serial.println("no right");
+  }else{
+    g_lights_indicators = 2;
+    Serial.println(" right");
+  }
+}
+void hazard(){
+  if(digitalRead( hazzard_pin )){
+    g_lights_indicators = 0;
+    Serial.println(" haz off");
+  }else{
+    g_lights_indicators = 3;
+    Serial.println(" hazzard on");
+  }
+}
+void fog(){
+  if(digitalRead( fog_pin )){
+    g_lights_rear_fog = false;
+    Serial.println(" fog off");
+  }else{
+    g_lights_rear_fog = true;
+    Serial.println(" fog on");
+  }
+}
+void sidelight(){
+  if(digitalRead( sidelight_pin )){
+    g_lights_side = false;
+    Serial.println("side light off");
+  }else{
+    g_lights_side = true;
+    Serial.println("sidelight on");
+  }
+}
+void dip(){
+  if(digitalRead( dip_pin )){
+    g_lights_dip = false;
+    Serial.println("dip light off");
+  }else{
+    g_lights_dip = true;
+    Serial.println("dip on");
+  }
+}
+void fullBeam(){
+  if(digitalRead( full_beam_pin )){
+    g_lights_main = false;
+    Serial.println("full beam light off");
+  }else{
+    g_lights_main = true;
+    Serial.println("full beam on");
+  }
+}
+void brake(){
+  if(digitalRead( brake_pin )){
+    g_handbrake = false;
+    Serial.println("handbrake light off");
+  }else{
+    g_handbrake = true;
+    Serial.println("handbrake light  on");
+  }
+}
+
+
+
+void  readInitialStates(){
+  leftInd();
+  rightInd();
+  hazard();
+  fog();
+  sidelight();
+  dip();
+  fullBeam();
+  brake();
+}
+
+
 void setup()
 {
+  //indicators
+  pinMode( left_ind_pin , INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(left_ind_pin), leftInd, CHANGE);
+  pinMode( right_ind_pin , INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(right_ind_pin), rightInd, CHANGE);
+  pinMode( hazzard_pin , INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(hazzard_pin), hazard, CHANGE);
+  pinMode( fog_pin , INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(fog_pin), fog, CHANGE);
+  pinMode( sidelight_pin , INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(sidelight_pin), sidelight, CHANGE);
+  pinMode( dip_pin , INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(dip_pin), dip, CHANGE);
+  pinMode( full_beam_pin , INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(full_beam_pin), fullBeam, CHANGE);
+  pinMode( brake_pin , INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(brake_pin), brake, CHANGE);
+
+
 
  Serial.begin(115200);
  Serial.setTimeout(250);
@@ -275,6 +403,7 @@ void setup()
 
  // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
+  readMacAddress();
 
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK) {
@@ -296,7 +425,7 @@ void setup()
   // Once ESPNow is successfully Init, we will register for recv CB to
   // get recv packer info
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
-
+  readInitialStates();
 
 }
 
@@ -309,10 +438,9 @@ void loop()
     //if no wifi message in 2000ms set wifi=false for display
     if (wifi && (millis() - lastDataTime >= 2000)) {
       wifi =false;
-      drawMSG();
+      //drawMSG(); //TODO I think this needs to go back in when I remove the debug mode
       //Serial.println("no data from Engine Bay ESP32");
     }
-
 
 
 
